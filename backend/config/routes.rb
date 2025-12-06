@@ -79,6 +79,25 @@ Rails.application.routes.draw do
       get 'shipping/uk', to: 'shipping_info#uk_shipping'
       get 'shipping/eu', to: 'shipping_info#eu_shipping'
       get 'shipping/vehicles', to: 'shipping_info#vehicle_guide'
+
+      # Admin namespace
+      namespace :admin do
+        resources :users do
+          collection do
+            get :drivers
+            get :customers
+          end
+        end
+        resources :orders do
+          member do
+            post :update_status
+            post :assign_driver
+          end
+          collection do
+            get :stats
+          end
+        end
+      end
     end
   end
 end

@@ -103,18 +103,29 @@ class QuotationCalculator
     return quote.distance_km if quote.distance_km.present?
 
     begin
-      # Use Geocoder for distance calculation
-      origin = Geocoder.search("#{quote.pickup_postcode}, #{quote.pickup_country}").first
-      destination = Geocoder.search("#{quote.delivery_postcode}, #{quote.delivery_country}").first
+      # Build search queries with full address for better international accuracy
+      origin_query = build_address_query(:pickup)
+      destination_query = build_address_query(:delivery)
 
-      if origin && destination
-        # Haversine distance * 1.3 road factor
-        Geocoder::Calculations.distance_between(
+      Rails.logger.info("Geocoding origin: #{origin_query}")
+      Rails.logger.info("Geocoding destination: #{destination_query}")
+
+      origin = Geocoder.search(origin_query).first
+      destination = Geocoder.search(destination_query).first
+
+      if origin && destination && origin.latitude && destination.latitude
+        # Haversine distance * road factor (1.3 for domestic, 1.4 for international due to border crossings)
+        road_factor = international? ? 1.4 : 1.3
+        distance = Geocoder::Calculations.distance_between(
           [origin.latitude, origin.longitude],
           [destination.latitude, destination.longitude],
           units: :km
-        ) * 1.3
+        ) * road_factor
+
+        Rails.logger.info("Calculated distance: #{distance.round(2)} km")
+        distance
       else
+        Rails.logger.warn("Geocoder couldn't find coordinates. Origin: #{origin.inspect}, Destination: #{destination.inspect}")
         estimate_distance_from_postcodes
       end
     rescue StandardError => e
@@ -123,9 +134,61 @@ class QuotationCalculator
     end
   end
 
+  def build_address_query(type)
+    prefix = type.to_s
+    country_code = quote.send("#{prefix}_country")
+    postcode = quote.send("#{prefix}_postcode")
+
+    # Try to use full address fields if available (for international)
+    city = quote.respond_to?("#{prefix}_city") ? quote.send("#{prefix}_city") : nil
+    address = quote.respond_to?("#{prefix}_address_line1") ? quote.send("#{prefix}_address_line1") : nil
+
+    # Get full country name for better geocoding
+    country_name = COUNTRY_NAMES[country_code&.upcase] || country_code
+
+    if city.present? && address.present?
+      "#{address}, #{city}, #{postcode}, #{country_name}"
+    elsif city.present?
+      "#{city}, #{postcode}, #{country_name}"
+    else
+      "#{postcode}, #{country_name}"
+    end
+  end
+
+  COUNTRY_NAMES = {
+    'GB' => 'United Kingdom',
+    'UK' => 'United Kingdom',
+    'FR' => 'France',
+    'DE' => 'Germany',
+    'NL' => 'Netherlands',
+    'BE' => 'Belgium',
+    'ES' => 'Spain',
+    'IT' => 'Italy',
+    'PL' => 'Poland',
+    'AT' => 'Austria',
+    'DK' => 'Denmark',
+    'SE' => 'Sweden',
+    'IE' => 'Ireland',
+    'PT' => 'Portugal',
+    'CZ' => 'Czech Republic',
+    'HU' => 'Hungary',
+    'RO' => 'Romania',
+    'BG' => 'Bulgaria',
+    'HR' => 'Croatia',
+    'SK' => 'Slovakia',
+    'SI' => 'Slovenia',
+    'LT' => 'Lithuania',
+    'LV' => 'Latvia',
+    'EE' => 'Estonia',
+    'FI' => 'Finland',
+    'LU' => 'Luxembourg',
+    'CH' => 'Switzerland',
+    'NO' => 'Norway'
+  }.freeze
+
   def estimate_distance_from_postcodes
-    # Fallback: estimate based on UK postcode areas
-    return 500 if international?
+    # Use capital city distances for international estimates
+    return estimate_international_distance if international?
 
     # UK postcode area approximate coordinates (lat, lng)
     postcode_coords = {
@@ -267,6 +330,75 @@ class QuotationCalculator
       [distance, 50].max # Minimum 50km
     else
       150 # Default UK estimate
+    end
+  end
+
+  def estimate_international_distance
+    # Capital/major city coordinates for international distance estimation
+    city_coords = {
+      'GB' => [51.51, -0.13],   # London
+      'UK' => [51.51, -0.13],   # London
+      'FR' => [48.86, 2.35],    # Paris
+      'DE' => [52.52, 13.41],   # Berlin
+      'NL' => [52.37, 4.90],    # Amsterdam
+      'BE' => [50.85, 4.35],    # Brussels
+      'ES' => [40.42, -3.70],   # Madrid
+      'IT' => [41.90, 12.50],   # Rome
+      'PL' => [52.23, 21.01],   # Warsaw
+      'AT' => [48.21, 16.37],   # Vienna
+      'DK' => [55.68, 12.57],   # Copenhagen
+      'SE' => [59.33, 18.07],   # Stockholm
+      'IE' => [53.35, -6.26],   # Dublin
+      'PT' => [38.72, -9.14],   # Lisbon
+      'CZ' => [50.08, 14.44],   # Prague
+      'HU' => [47.50, 19.04],   # Budapest
+      'RO' => [44.43, 26.10],   # Bucharest
+      'BG' => [42.70, 23.32],   # Sofia
+      'HR' => [45.81, 15.98],   # Zagreb
+      'SK' => [48.15, 17.11],   # Bratislava
+      'SI' => [46.06, 14.51],   # Ljubljana
+      'LT' => [54.69, 25.28],   # Vilnius
+      'LV' => [56.95, 24.11],   # Riga
+      'EE' => [59.44, 24.75],   # Tallinn
+      'FI' => [60.17, 24.94],   # Helsinki
+      'LU' => [49.61, 6.13],    # Luxembourg
+      'CH' => [46.95, 7.45],    # Bern
+      'NO' => [59.91, 10.75],   # Oslo
+      'GR' => [37.98, 23.73],   # Athens
+    }
+
+    pickup_country = quote.pickup_country&.upcase
+    delivery_country = quote.delivery_country&.upcase
+
+    pickup_coord = city_coords[pickup_country]
+    delivery_coord = city_coords[delivery_country]
+
+    if pickup_coord && delivery_coord
+      # Haversine formula
+      lat1, lon1 = pickup_coord.map { |c| c * Math::PI / 180 }
+      lat2, lon2 = delivery_coord.map { |c| c * Math::PI / 180 }
+
+      dlat = lat2 - lat1
+      dlon = lon2 - lon1
+
+      a = Math.sin(dlat / 2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dlon / 2)**2
+      c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+      # Earth radius in km * 1.4 road factor for international (more winding routes, border crossings)
+      distance = 6371 * c * 1.4
+
+      # Add ferry crossing estimate if UK involved
+      if %w[GB UK].include?(pickup_country) || %w[GB UK].include?(delivery_country)
+        # Channel crossing adds ~50km equivalent
+        distance += 50
+      end
+
+      Rails.logger.info("Estimated international distance from #{pickup_country} to #{delivery_country}: #{distance.round(2)} km")
+      [distance, 100].max # Minimum 100km for international
+    else
+      # Default fallback based on general European distances
+      Rails.logger.warn("Unknown country for distance estimation: #{pickup_country} or #{delivery_country}")
+      800 # Average European cross-country distance
     end
   end
 

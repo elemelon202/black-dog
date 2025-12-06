@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_06_054521) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_06_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -149,6 +149,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_06_054521) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pickup_address_line1"
+    t.string "pickup_address_line2"
+    t.string "pickup_city"
+    t.string "pickup_state"
+    t.string "pickup_company_name"
+    t.string "delivery_address_line1"
+    t.string "delivery_address_line2"
+    t.string "delivery_city"
+    t.string "delivery_state"
+    t.string "delivery_company_name"
     t.index ["quote_number"], name: "index_quotes_on_quote_number"
     t.index ["user_id"], name: "index_quotes_on_user_id"
   end
