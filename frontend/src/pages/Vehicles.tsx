@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import {
   Truck,
-  Package,
   Ruler,
-  Weight,
   Box,
   CheckCircle,
   ArrowRight,

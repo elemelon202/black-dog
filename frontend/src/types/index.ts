@@ -10,6 +10,7 @@ export interface User {
   vat_number?: string;
   billing_address?: string;
   role: 'customer' | 'driver' | 'dispatcher' | 'admin';
+  demo_user: boolean;
   created_at: string;
 }
 

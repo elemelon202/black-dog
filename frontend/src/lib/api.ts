@@ -21,14 +21,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor to handle auth errors
+// Response interceptor to handle auth errors and demo mode
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.href = import.meta.env.BASE_URL + 'login';
+    }
+    // Handle demo mode restriction
+    if (error.response?.status === 403 && error.response?.data?.demo_mode) {
+      // Create and dispatch a custom event for demo mode notifications
+      window.dispatchEvent(new CustomEvent('demo-mode-blocked', {
+        detail: { message: error.response.data.error }
+      }));
     }
     return Promise.reject(error);
   }

@@ -34,6 +34,40 @@ customer = User.find_or_create_by!(email: "customer@example.com") do |u|
 end
 puts "Created customer: #{customer.email}"
 
+# Create Demo Users (read-only access for portfolio showcase)
+puts "\nCreating demo users..."
+
+demo_admin = User.find_or_create_by!(email: "demo@blackdogexpress.co.uk") do |u|
+  u.password = "demo123"
+  u.first_name = "Demo"
+  u.last_name = "Admin"
+  u.phone = "+44 7700 000000"
+  u.role = :admin
+  u.demo_user = true
+end
+puts "Created demo admin: #{demo_admin.email}"
+
+demo_driver = User.find_or_create_by!(email: "demo-driver@blackdogexpress.co.uk") do |u|
+  u.password = "demo123"
+  u.first_name = "Demo"
+  u.last_name = "Driver"
+  u.phone = "+44 7700 000001"
+  u.role = :driver
+  u.demo_user = true
+end
+puts "Created demo driver: #{demo_driver.email}"
+
+demo_customer = User.find_or_create_by!(email: "demo-customer@blackdogexpress.co.uk") do |u|
+  u.password = "demo123"
+  u.first_name = "Demo"
+  u.last_name = "Customer"
+  u.phone = "+44 7700 000002"
+  u.company_name = "Demo Company Ltd"
+  u.role = :customer
+  u.demo_user = true
+end
+puts "Created demo customer: #{demo_customer.email}"
+
 # Create Drivers (12 drivers for 12 vehicles)
 drivers_data = [
   { email: "driver1@blackdogexpress.co.uk", first_name: "Mike", last_name: "Thompson", phone: "+44 7700 900100" },

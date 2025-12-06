@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import DemoModeBanner from './DemoModeBanner';
 import {
   Truck,
   Package,
@@ -52,6 +53,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <DemoModeBanner />
       {/* Header */}
       <header className="bg-brand-900 text-white">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
