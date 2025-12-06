@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+vendor/bundle/
+
+# Environment
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+backend/log/*
+!backend/log/.keep
+
+# Temp files
+backend/tmp/*
+!backend/tmp/.keep
+!backend/tmp/pids/
+backend/tmp/pids/*
+!backend/tmp/pids/.keep
+
+# Storage
+backend/storage/*
+!backend/storage/.keep
+
+# Build
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Ruby
+*.gem
+.bundle/
+backend/.ruby-version
+backend/.ruby-gemset
+
+# Rails
+backend/db/*.sqlite3
+backend/db/*.sqlite3-*
+/backend/public/assets
+/backend/public/packs
+/backend/public/packs-test
+
+# Credentials (keep templates)
+backend/config/credentials/*.enc
+backend/config/master.key
