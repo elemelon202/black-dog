@@ -7,7 +7,6 @@ import {
   Search,
   Filter,
   Phone,
-  Mail,
   MapPin,
   Truck,
   X,

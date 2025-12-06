@@ -30,7 +30,7 @@ export default function AdminHR() {
   const [alertFilter, setAlertFilter] = useState<AlertFilter>('all');
 
   // Queries
-  const { data: summaryData, isLoading: summaryLoading } = useQuery({
+  const { data: summaryData } = useQuery({
     queryKey: ['hr', 'summary'],
     queryFn: async () => {
       const response = await hrApi.getSummary();
@@ -74,7 +74,7 @@ export default function AdminHR() {
   });
 
   const generatePayslipsMutation = useMutation({
-    mutationFn: (period?: string) => hrApi.generatePayslips(period),
+    mutationFn: (period: string | undefined) => hrApi.generatePayslips(period),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hr', 'payslips'] });
     },
@@ -228,7 +228,7 @@ export default function AdminHR() {
             <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => generatePayslipsMutation.mutate()}
+                onClick={() => generatePayslipsMutation.mutate(undefined)}
                 disabled={generatePayslipsMutation.isPending}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
@@ -528,7 +528,7 @@ export default function AdminHR() {
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold">Payslip History</h2>
             <button
-              onClick={() => generatePayslipsMutation.mutate()}
+              onClick={() => generatePayslipsMutation.mutate(undefined)}
               disabled={generatePayslipsMutation.isPending}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >

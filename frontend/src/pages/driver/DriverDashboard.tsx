@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { driverApi } from '../../lib/api';
 import {
   Truck,
-  MapPin,
   Clock,
   Package,
   AlertTriangle,

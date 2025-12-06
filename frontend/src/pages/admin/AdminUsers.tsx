@@ -10,7 +10,6 @@ import {
   Plus,
   Trash2,
   X,
-  UserCheck,
   Truck,
   ClipboardList,
   Shield
@@ -38,7 +37,7 @@ export default function AdminUsers() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['admin', 'users', activeTab],
     queryFn: async () => {
       const response = await adminApi.getUsers({ role: activeTab === 'dispatchers' ? 'dispatcher' : activeTab === 'admins' ? 'admin' : 'driver' });

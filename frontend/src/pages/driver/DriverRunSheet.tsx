@@ -19,7 +19,6 @@ import {
   Weight,
   Thermometer,
   AlertCircle,
-  ChevronRight,
   Bell
 } from 'lucide-react';
 

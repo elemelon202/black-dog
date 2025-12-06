@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -18,7 +18,6 @@ const stripePromise = loadStripe(
 function CheckoutForm({ orderId, amount }: { orderId: number; amount: number }) {
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
