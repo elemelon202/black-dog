@@ -1,0 +1,40 @@
+================================================================================
+VEHICLE ASSIGNMENT RECORD
+================================================================================
+
+DRIVER DETAILS
+--------------------------------------------------------------------------------
+Name:               Dave Brown
+Employee ID:        EMP0006
+License Number:     BROWN502049D29AA
+
+ASSIGNED VEHICLE
+--------------------------------------------------------------------------------
+Vehicle Name:       DAF CF 18t
+Registration:       EF23 DEF
+Vehicle Type:       Eighteen tonne
+Max Weight:         10000.0 kg
+Max Volume:         45.0 cbm
+
+ASSIGNMENT DETAILS
+--------------------------------------------------------------------------------
+Assignment Date:    06 September 2025
+Assignment Type:    Primary Vehicle
+Status:             Active
+
+DRIVER RESPONSIBILITIES
+--------------------------------------------------------------------------------
+- Complete daily vehicle checks before each journey
+- Report any defects immediately to Fleet Manager
+- Maintain cleanliness of cab and load area
+- Secure vehicle when unattended
+- Adhere to all traffic laws and EU driving regulations
+- Maintain accurate tachograph records
+
+FUEL CARD ISSUED
+--------------------------------------------------------------------------------
+Card Number:        ****-****-****-3323
+Card Type:          Diesel Only
+Monthly Limit:      As per route requirements
+
+================================================================================

@@ -5,6 +5,7 @@ class QuotationCalculator
 
   UK_VAT_RATE = 0.20
   FUEL_PRICE_PER_LITRE = 1.07
+  MULTI_DROP_DISCOUNT = 0.25 # 25% discount for customers willing to share vehicle
 
   def initialize(quote)
     @quote = quote
@@ -16,33 +17,58 @@ class QuotationCalculator
   def calculate
     distance = calculate_distance
     duration = estimate_duration(distance)
+    driver_days = calculate_driver_days(distance)
 
     base = calculate_base_price(distance, duration)
     fuel = calculate_fuel_surcharge(base)
     distance_charge = calculate_distance_charge(distance)
+
+    # Long distance surcharge: 50% extra if job takes more than 2 complete shifts (18+ hours driving round trip)
+    # This accounts for driver needing to return and multi-day commitment
+    long_distance_surcharge = calculate_long_distance_surcharge(distance, driver_days, distance_charge)
+
     overnight = calculate_overnight_charge(distance)
+    ferry = calculate_ferry_charge
     additional = calculate_additional_services
-    subtotal = [base + fuel + distance_charge + overnight + additional, minimum_charge].max
+
+    subtotal = [base + fuel + distance_charge + long_distance_surcharge + overnight + ferry + additional, minimum_charge].max
+
+    # Apply multi-drop discount if customer opted in (25% off for sharing vehicle)
+    multi_drop_discount_amount = 0
+    if multi_drop_ok?
+      multi_drop_discount_amount = subtotal * MULTI_DROP_DISCOUNT
+      subtotal = subtotal - multi_drop_discount_amount
+    end
 
     vat = calculate_vat(subtotal)
     total = subtotal + vat
 
-    update_quote(distance, duration, base, fuel, distance_charge, additional, vat, total)
+    update_quote(distance, duration, base, fuel, distance_charge + long_distance_surcharge, additional + ferry, vat, total, multi_drop_discount_amount)
 
-    {
+    result = {
       distance_km: distance,
       distance_miles: (distance / 1.60934).round(1),
       estimated_duration_hours: duration,
+      driver_days: driver_days,
       base_price: base.round(2),
       fuel_surcharge: fuel.round(2),
       distance_charge: distance_charge.round(2),
+      long_distance_surcharge: long_distance_surcharge.round(2),
       overnight_charge: overnight.round(2),
+      ferry_charge: ferry.round(2),
       additional_services_charge: additional.round(2),
       subtotal: subtotal.round(2),
       vat_amount: vat.round(2),
       total_price: total.round(2),
-      breakdown: generate_breakdown(base, fuel, distance_charge, overnight, additional, vat, distance)
+      multi_drop_ok: multi_drop_ok?,
+      breakdown: generate_breakdown(base, fuel, distance_charge, long_distance_surcharge, overnight, ferry, additional, vat, distance, driver_days, multi_drop_discount_amount)
     }
+
+    if multi_drop_ok?
+      result[:multi_drop_discount] = multi_drop_discount_amount.round(2)
+    end
+
+    result
   end
 
   def self.quick_estimate(params)
@@ -69,6 +95,14 @@ class QuotationCalculator
       pickup = quote.pickup_country&.to_s&.upcase
       delivery = quote.delivery_country&.to_s&.upcase
       %w[GB UK].include?(pickup) && %w[GB UK].include?(delivery)
+    end
+  end
+
+  def multi_drop_ok?
+    if quote.respond_to?(:multi_drop_ok)
+      quote.multi_drop_ok == true
+    else
+      quote.respond_to?(:[]) && quote[:multi_drop_ok] == true
     end
   end
 
@@ -156,34 +190,43 @@ class QuotationCalculator
   end
 
   COUNTRY_NAMES = {
+    # UK & Ireland
     'GB' => 'United Kingdom',
     'UK' => 'United Kingdom',
+    'IE' => 'Ireland',
+    # Western Europe
     'FR' => 'France',
     'DE' => 'Germany',
     'NL' => 'Netherlands',
     'BE' => 'Belgium',
-    'ES' => 'Spain',
-    'IT' => 'Italy',
-    'PL' => 'Poland',
+    'LU' => 'Luxembourg',
     'AT' => 'Austria',
+    'CH' => 'Switzerland',
+    # Southern Europe
+    'ES' => 'Spain',
+    'PT' => 'Portugal',
+    'IT' => 'Italy',
+    'GR' => 'Greece',
+    'MT' => 'Malta',
+    'CY' => 'Cyprus',
+    # Northern Europe
     'DK' => 'Denmark',
     'SE' => 'Sweden',
-    'IE' => 'Ireland',
-    'PT' => 'Portugal',
+    'NO' => 'Norway',
+    'FI' => 'Finland',
+    # Central & Eastern Europe
+    'PL' => 'Poland',
     'CZ' => 'Czech Republic',
+    'SK' => 'Slovakia',
     'HU' => 'Hungary',
     'RO' => 'Romania',
     'BG' => 'Bulgaria',
-    'HR' => 'Croatia',
-    'SK' => 'Slovakia',
     'SI' => 'Slovenia',
-    'LT' => 'Lithuania',
-    'LV' => 'Latvia',
+    'HR' => 'Croatia',
+    # Baltic States
     'EE' => 'Estonia',
-    'FI' => 'Finland',
-    'LU' => 'Luxembourg',
-    'CH' => 'Switzerland',
-    'NO' => 'Norway'
+    'LV' => 'Latvia',
+    'LT' => 'Lithuania'
   }.freeze
 
   def estimate_distance_from_postcodes
@@ -336,35 +379,43 @@ class QuotationCalculator
   def estimate_international_distance
     # Capital/major city coordinates for international distance estimation
     city_coords = {
+      # UK & Ireland
       'GB' => [51.51, -0.13],   # London
       'UK' => [51.51, -0.13],   # London
+      'IE' => [53.35, -6.26],   # Dublin
+      # Western Europe
       'FR' => [48.86, 2.35],    # Paris
       'DE' => [52.52, 13.41],   # Berlin
       'NL' => [52.37, 4.90],    # Amsterdam
       'BE' => [50.85, 4.35],    # Brussels
-      'ES' => [40.42, -3.70],   # Madrid
-      'IT' => [41.90, 12.50],   # Rome
-      'PL' => [52.23, 21.01],   # Warsaw
+      'LU' => [49.61, 6.13],    # Luxembourg City
       'AT' => [48.21, 16.37],   # Vienna
+      'CH' => [46.95, 7.45],    # Bern
+      # Southern Europe
+      'ES' => [40.42, -3.70],   # Madrid
+      'PT' => [38.72, -9.14],   # Lisbon
+      'IT' => [41.90, 12.50],   # Rome
+      'GR' => [37.98, 23.73],   # Athens
+      'MT' => [35.90, 14.51],   # Valletta
+      'CY' => [35.17, 33.36],   # Nicosia
+      # Northern Europe
       'DK' => [55.68, 12.57],   # Copenhagen
       'SE' => [59.33, 18.07],   # Stockholm
-      'IE' => [53.35, -6.26],   # Dublin
-      'PT' => [38.72, -9.14],   # Lisbon
+      'NO' => [59.91, 10.75],   # Oslo
+      'FI' => [60.17, 24.94],   # Helsinki
+      # Central & Eastern Europe
+      'PL' => [52.23, 21.01],   # Warsaw
       'CZ' => [50.08, 14.44],   # Prague
+      'SK' => [48.15, 17.11],   # Bratislava
       'HU' => [47.50, 19.04],   # Budapest
       'RO' => [44.43, 26.10],   # Bucharest
       'BG' => [42.70, 23.32],   # Sofia
-      'HR' => [45.81, 15.98],   # Zagreb
-      'SK' => [48.15, 17.11],   # Bratislava
       'SI' => [46.06, 14.51],   # Ljubljana
-      'LT' => [54.69, 25.28],   # Vilnius
-      'LV' => [56.95, 24.11],   # Riga
+      'HR' => [45.81, 15.98],   # Zagreb
+      # Baltic States
       'EE' => [59.44, 24.75],   # Tallinn
-      'FI' => [60.17, 24.94],   # Helsinki
-      'LU' => [49.61, 6.13],    # Luxembourg
-      'CH' => [46.95, 7.45],    # Bern
-      'NO' => [59.91, 10.75],   # Oslo
-      'GR' => [37.98, 23.73],   # Athens
+      'LV' => [56.95, 24.11],   # Riga
+      'LT' => [54.69, 25.28],   # Vilnius
     }
 
     pickup_country = quote.pickup_country&.upcase
@@ -403,26 +454,84 @@ class QuotationCalculator
   end
 
   def estimate_duration(distance_km)
-    # Average speeds by vehicle type
+    # EU Driving Regulations (EC 561/2006):
+    # - Max 9 hours driving per day (can extend to 10h twice per week)
+    # - 45 minute break required after 4.5 hours driving
+    # - Max 56 hours driving per week
+    # - Min 11 hours daily rest (can reduce to 9h three times per week)
+    # - Weekly rest: 45 hours (can reduce to 24h once per fortnight)
+
+    # Average speeds by vehicle type (accounting for traffic, speed limits)
     avg_speed = case pricing_rule.vehicle_type&.to_sym
                 when :small_van, :large_van, :luton_van
-                  70 # km/h
+                  65 # km/h effective average
                 when :seven_five_tonne, :eighteen_tonne
-                  65
+                  60
                 else
-                  60 # Larger vehicles
+                  55 # Larger vehicles, more restrictions
                 end
 
-    # Add time for loading/unloading
-    loading_time = 1 # hour
+    # Calculate one-way driving time
+    one_way_driving_hours = distance_km / avg_speed.to_f
 
-    # Add ferry time if international
-    ferry_time = international? ? 2 : 0
+    # Driver must return - calculate round trip driving time
+    round_trip_driving_hours = one_way_driving_hours * 2
 
-    # Add border/customs time
-    customs_time = international? ? 1 : 0
+    # EU mandatory breaks: 45 min per 4.5 hours driving
+    # For round trip, calculate total breaks needed
+    break_periods = (round_trip_driving_hours / 4.5).floor
+    break_time = break_periods * 0.75 # 45 mins = 0.75 hours
 
-    (distance_km / avg_speed) + loading_time + ferry_time + customs_time
+    # Loading time at pickup
+    loading_time = 1.0 # hour
+
+    # Unloading time at delivery
+    unloading_time = 0.75 # 45 mins
+
+    # Add ferry time if international (each way)
+    ferry_time = international? ? 4.0 : 0 # 2 hours each way
+
+    # Add border/customs time post-Brexit
+    customs_time = international? ? 2.0 : 0 # 1 hour each way
+
+    # Calculate if overnight rest is required
+    # Max 9 hours driving per day, so if round trip > 9 hours, need rest period
+    daily_max_driving = 9.0
+
+    if round_trip_driving_hours > daily_max_driving
+      # Multi-day journey - calculate days required
+      driving_days = (round_trip_driving_hours / daily_max_driving).ceil
+
+      # 11 hours minimum rest between driving days
+      overnight_rest_hours = (driving_days - 1) * 11.0
+
+      total_time = round_trip_driving_hours + break_time + loading_time + unloading_time +
+                   ferry_time + customs_time + overnight_rest_hours
+    else
+      # Single day journey
+      total_time = round_trip_driving_hours + break_time + loading_time + unloading_time +
+                   ferry_time + customs_time
+    end
+
+    Rails.logger.info("Duration calculation: #{distance_km}km one-way, #{round_trip_driving_hours.round(1)}h driving (round trip), #{total_time.round(1)}h total")
+    total_time
+  end
+
+  def calculate_driver_days(distance_km)
+    # Calculate how many driver days are needed (for costing)
+    avg_speed = case pricing_rule.vehicle_type&.to_sym
+                when :small_van, :large_van, :luton_van
+                  65
+                when :seven_five_tonne, :eighteen_tonne
+                  60
+                else
+                  55
+                end
+
+    round_trip_driving_hours = (distance_km / avg_speed.to_f) * 2
+    daily_max_driving = 9.0 # EU limit
+
+    [(round_trip_driving_hours / daily_max_driving).ceil, 1].max
   end
 
   def calculate_base_price(distance, duration)
@@ -438,21 +547,53 @@ class QuotationCalculator
   end
 
   def calculate_overnight_charge(distance)
-    # Check if this is a long-distance journey requiring overnight stay
-    vehicle_specs = PricingRule::DEFAULT_RATES[pricing_rule.vehicle_type&.to_sym] || {}
-    has_sleeper = vehicle_specs[:has_sleeper]
-    max_day_miles = vehicle_specs[:max_day_miles]
+    # Calculate driver days based on EU driving limits and return journey
+    driver_days = calculate_driver_days(distance)
 
-    distance_miles = distance / 1.60934
-
-    # If vehicle has sleeper and journey is over 200 miles, add overnight charge
-    if has_sleeper && distance_miles > PricingRule::DISTANCE_THRESHOLD_MILES
-      PricingRule::OVERNIGHT_CHARGE
-    # If no sleeper and journey exceeds max day distance, this should be flagged
-    elsif !has_sleeper && max_day_miles && distance_miles > max_day_miles
-      # For non-sleeper vehicles exceeding max distance, we'd need to handle this
-      # For now, just note it in the quote - could be a multi-day job
+    if driver_days > 1
+      # Driver food allowance per day (driver sleeps in cab)
+      food_per_day = 12.0 # £12/day food allowance
+      driver_days * food_per_day
+    else
       0
+    end
+  end
+
+  def calculate_ferry_charge
+    # Channel crossing costs for UK to/from EU
+    return 0 unless international?
+
+    pickup_country = quote.pickup_country&.upcase
+    delivery_country = quote.delivery_country&.upcase
+
+    # Only charge if crossing the Channel
+    uk_involved = %w[GB UK].include?(pickup_country) || %w[GB UK].include?(delivery_country)
+    return 0 unless uk_involved
+
+    # Ferry/Tunnel costs vary by vehicle type (return journey included)
+    # These are typical commercial rates for freight
+    vehicle = pricing_rule.vehicle_type&.to_sym || :large_van
+
+    case vehicle
+    when :small_van, :large_van
+      280  # Van rate (return)
+    when :luton_van, :seven_five_tonne
+      350  # Small truck rate (return)
+    when :eighteen_tonne
+      450  # 18t truck rate (return)
+    else
+      550  # Artic/HGV rate (return)
+    end
+  end
+
+  def calculate_long_distance_surcharge(distance, driver_days, distance_charge)
+    # Long distance surcharge: 50% of distance charge if job takes more than 2 complete shifts
+    # 2 shifts = 18 hours of driving (9 hours x 2 days)
+    # This accounts for driver needing to return and the extended commitment
+
+    if driver_days > 2
+      # 50% surcharge on distance for multi-day jobs (3+ days)
+      distance_charge * 0.5
     else
       0
     end
@@ -505,13 +646,19 @@ class QuotationCalculator
     subtotal * UK_VAT_RATE
   end
 
-  def update_quote(distance, duration, base, fuel, distance_charge, additional, vat, total)
+  def update_quote(distance, duration, base, fuel, distance_charge, additional, vat, total, multi_drop_discount = 0)
     return unless quote.is_a?(Quote)
+
+    # If multi-drop discount applied, adjust the base_price to reflect it
+    adjusted_base = base
+    if multi_drop_discount > 0
+      adjusted_base = base - multi_drop_discount
+    end
 
     quote.assign_attributes(
       distance_km: distance.round(2),
       estimated_duration_hours: duration.round(2),
-      base_price: base.round(2),
+      base_price: adjusted_base.round(2),
       fuel_surcharge: fuel.round(2),
       distance_charge: distance_charge.round(2),
       additional_services_charge: additional.round(2),
@@ -521,34 +668,74 @@ class QuotationCalculator
     )
   end
 
-  def generate_breakdown(base, fuel, distance_charge, overnight, additional, vat, distance)
+  def generate_breakdown(base, fuel, distance_charge, long_distance_surcharge, overnight, ferry, additional, vat, distance, driver_days, multi_drop_discount = 0)
     rate_per_km = pricing_rule.rate_per_km || 0
     rate_per_mile = (rate_per_km * 1.60934).round(2)
     distance_miles = (distance / 1.60934).round(1)
 
     items = [
-      { description: "Base charge (#{pricing_rule.vehicle_type&.humanize || 'Standard'})", amount: base.round(2) },
-      { description: "Distance: #{distance_miles} miles @ £#{rate_per_mile}/mile", amount: distance_charge.round(2) }
+      { description: "Base charge (#{pricing_rule.vehicle_type&.humanize || 'Standard'})", amount: base.round(2) }
     ]
+
+    # Distance charge (one-way distance, driver return factored into duration)
+    items << {
+      description: "Distance: #{distance_miles} miles @ £#{rate_per_mile}/mile",
+      amount: distance_charge.round(2)
+    }
+
+    # Long distance surcharge (50% extra for 3+ day jobs)
+    if long_distance_surcharge > 0
+      items << {
+        description: "Long distance surcharge (50% - #{driver_days} day job)",
+        amount: long_distance_surcharge.round(2)
+      }
+    end
+
+    # Show driver time info (based on EU regulations)
+    if driver_days > 1
+      items << {
+        description: "Driver time: #{driver_days} days (EU tachograph regulations)",
+        amount: 0 # Informational - cost is in hourly rate
+      }
+    end
 
     # Only show fuel surcharge if it's non-zero (for legacy pricing rules)
     if fuel > 0
       items << { description: "Fuel surcharge", amount: fuel.round(2) }
     end
 
-    # Overnight charge for sleeper cab vehicles on long journeys
+    # Driver food allowance for multi-day journeys
     if overnight > 0
-      items << { description: "Overnight (driver sleeper cab)", amount: overnight.round(2) }
+      items << {
+        description: "Driver food allowance (#{driver_days} days @ £12/day)",
+        amount: overnight.round(2)
+      }
+    end
+
+    # Ferry/Channel crossing for international
+    if ferry > 0
+      items << {
+        description: "Channel crossing (ferry/tunnel - return)",
+        amount: ferry.round(2)
+      }
     end
 
     if additional > 0
       if international? || eu_destination?
-        items << { description: "International delivery surcharge", amount: (additional * 0.6).round(2) }
+        items << { description: "International delivery (customs clearance)", amount: (additional * 0.6).round(2) }
       end
       items << { description: "Tail lift", amount: pricing_rule.tail_lift_charge || 35 } if quote.requires_tail_lift
       items << { description: "Pallet jack", amount: pricing_rule.pallet_jack_charge || 25 } if quote.requires_pallet_jack
-      items << { description: "Hazardous materials handling", amount: (additional * 0.3).round(2) } if quote.is_hazardous
+      items << { description: "Hazardous materials (ADR)", amount: (additional * 0.3).round(2) } if quote.is_hazardous
       items << { description: "Temperature controlled", amount: 75 } if quote.is_temperature_controlled
+    end
+
+    # Multi-drop discount (25% off for sharing vehicle)
+    if multi_drop_discount > 0
+      items << {
+        description: "Multi-drop discount (25% - shared vehicle)",
+        amount: -multi_drop_discount.round(2)
+      }
     end
 
     items << { description: "VAT (20%)", amount: vat.round(2) }

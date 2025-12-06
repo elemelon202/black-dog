@@ -188,7 +188,7 @@ export default function Dashboard() {
                   <div className="text-right">
                     {getStatusBadge(quote.attributes.status)}
                     <p className="text-sm font-medium text-brand-900 mt-1">
-                      £{quote.attributes.total_price?.toFixed(2) || '0.00'}
+                      £{Number(quote.attributes.total_price || 0).toFixed(2)}
                     </p>
                   </div>
                 </div>

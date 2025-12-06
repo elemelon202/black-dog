@@ -1,0 +1,35 @@
+================================================================================
+EMERGENCY CONTACT FORM
+================================================================================
+
+EMPLOYEE DETAILS
+--------------------------------------------------------------------------------
+Name:           Mike Thompson
+Employee ID:    EMP0004
+Department:     Transport
+Work Phone:     +44 7700 900100
+
+PRIMARY EMERGENCY CONTACT
+--------------------------------------------------------------------------------
+Name:           [On file]
+Relationship:   [On file]
+Phone:          [On file]
+Address:        [On file]
+
+SECONDARY EMERGENCY CONTACT
+--------------------------------------------------------------------------------
+Name:           [On file]
+Relationship:   [On file]
+Phone:          [On file]
+
+MEDICAL INFORMATION
+--------------------------------------------------------------------------------
+Known Allergies:        [On file]
+Medical Conditions:     [On file]
+Blood Type:             [On file]
+GP Name & Address:      [On file]
+
+--------------------------------------------------------------------------------
+Form Completed:     06 September 2025
+Last Updated:       06 December 2025
+================================================================================

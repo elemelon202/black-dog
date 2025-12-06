@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_many :payments, dependent: :destroy
   has_many :communications, dependent: :destroy
+  has_many :staff_salaries, dependent: :destroy
+  has_one :assigned_vehicle, class_name: 'Vehicle', foreign_key: 'driver_id'
 
   validates :first_name, presence: true
   validates :last_name, presence: true

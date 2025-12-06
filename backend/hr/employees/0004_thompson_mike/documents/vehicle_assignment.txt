@@ -1,0 +1,40 @@
+================================================================================
+VEHICLE ASSIGNMENT RECORD
+================================================================================
+
+DRIVER DETAILS
+--------------------------------------------------------------------------------
+Name:               Mike Thompson
+Employee ID:        EMP0004
+License Number:     THOMP268828M81AA
+
+ASSIGNED VEHICLE
+--------------------------------------------------------------------------------
+Vehicle Name:       Transit 350
+Registration:       AB21 XYZ
+Vehicle Type:       Large van
+Max Weight:         1200.0 kg
+Max Volume:         12.0 cbm
+
+ASSIGNMENT DETAILS
+--------------------------------------------------------------------------------
+Assignment Date:    06 September 2025
+Assignment Type:    Primary Vehicle
+Status:             Active
+
+DRIVER RESPONSIBILITIES
+--------------------------------------------------------------------------------
+- Complete daily vehicle checks before each journey
+- Report any defects immediately to Fleet Manager
+- Maintain cleanliness of cab and load area
+- Secure vehicle when unattended
+- Adhere to all traffic laws and EU driving regulations
+- Maintain accurate tachograph records
+
+FUEL CARD ISSUED
+--------------------------------------------------------------------------------
+Card Number:        ****-****-****-2208
+Card Type:          Diesel Only
+Monthly Limit:      As per route requirements
+
+================================================================================

@@ -46,6 +46,7 @@ Rails.application.routes.draw do
       resources :vehicles do
         member do
           post :toggle_availability
+          post :assign_driver
         end
         collection do
           get :vehicle_types
@@ -92,9 +93,94 @@ Rails.application.routes.draw do
           member do
             post :update_status
             post :assign_driver
+            patch :update_run_sheet
           end
           collection do
             get :stats
+          end
+
+          # Job costs for each order
+          resource :job_cost, only: [:show, :create, :update, :destroy]
+
+          # Travel bookings for each order
+          resources :travel_bookings, only: [:index, :show, :create, :update, :destroy]
+        end
+
+        # Finance endpoints
+        get 'finances/overview', to: 'finances#overview'
+        get 'finances/job_profits', to: 'finances#job_profits'
+
+        # Staff salaries
+        resources :staff_salaries do
+          member do
+            post :approve
+            post :mark_paid
+          end
+          collection do
+            get :staff_list
+          end
+        end
+
+        # Business expenses
+        resources :business_expenses do
+          member do
+            post :approve
+          end
+          collection do
+            get :categories
+          end
+        end
+
+        # Upcoming travel bookings (all orders)
+        get 'travel_bookings/upcoming', to: 'travel_bookings#upcoming'
+        get 'travel_bookings/providers', to: 'travel_bookings#providers'
+
+        # HR Documents
+        namespace :hr do
+          get '/', to: 'hr_documents#summary'
+          get 'summary', to: 'hr_documents#summary'
+          get 'employees', to: 'hr_documents#employees'
+          get 'employees/:id/files', to: 'hr_documents#employee_files'
+          get 'employees/:id/documents/:document_type', to: 'hr_documents#show_document'
+          get 'employees/:id/documents/:document_type/download', to: 'hr_documents#download_document'
+          post 'employees/:id/regenerate', to: 'hr_documents#regenerate_employee_files'
+          get 'payslips', to: 'hr_documents#payslips'
+          get 'payslips/:period/:employee_id', to: 'hr_documents#show_payslip'
+          post 'payslips/generate', to: 'hr_documents#generate_payslips'
+        end
+      end
+
+      # Driver namespace
+      namespace :driver do
+        get 'dashboard', to: 'dashboard#index'
+
+        resources :orders, only: [:index, :show] do
+          member do
+            get :run_sheet
+            post :update_status
+            post :record_signature
+          end
+
+          resources :journey_events, only: [:index, :show, :create] do
+            collection do
+              post :notify_collection
+              post :notify_loaded
+              post :notify_departed
+              post :notify_delivery_arrival
+              post :notify_delivered
+              post :report_problem
+              post :report_emergency
+              post :start_rest_break
+              post :end_rest_break
+            end
+          end
+        end
+
+        resources :vehicle_checks, only: [:index, :create] do
+          collection do
+            get :todays_checks
+            post :pre_trip
+            post :post_trip
           end
         end
       end

@@ -7,6 +7,10 @@ class Order < ApplicationRecord
   has_one :payment, dependent: :destroy
   has_many :communications, dependent: :destroy
   has_many :addresses, as: :addressable, dependent: :destroy
+  has_many :journey_events, dependent: :destroy
+  has_many :vehicle_checks, dependent: :destroy
+  has_one :job_cost, dependent: :destroy
+  has_many :travel_bookings, dependent: :destroy
 
   enum :status, {
     pending: 0,
@@ -20,10 +24,11 @@ class Order < ApplicationRecord
     failed_delivery: 8
   }
 
-  validates :pickup_contact_name, presence: true, on: :update
-  validates :pickup_contact_phone, presence: true, on: :update
-  validates :delivery_contact_name, presence: true, on: :update
-  validates :delivery_contact_phone, presence: true, on: :update
+  # Only require contact info when order is being confirmed or beyond
+  validates :pickup_contact_name, presence: true, if: :contact_info_required?
+  validates :pickup_contact_phone, presence: true, if: :contact_info_required?
+  validates :delivery_contact_name, presence: true, if: :contact_info_required?
+  validates :delivery_contact_phone, presence: true, if: :contact_info_required?
 
   before_create :generate_order_number
   before_create :generate_tracking_number
@@ -45,13 +50,30 @@ class Order < ApplicationRecord
     update!(status: :in_transit, actual_pickup_date: Time.current)
   end
 
-  def mark_delivered!(proof: nil, notes: nil)
+  def mark_delivered!(proof: nil, notes: nil, signature_data: nil, signature_name: nil)
     update!(
       status: :delivered,
       actual_delivery_date: Time.current,
       proof_of_delivery: proof,
-      driver_notes: notes
+      driver_notes: notes,
+      signature_data: signature_data,
+      signature_name: signature_name,
+      signature_timestamp: signature_data.present? ? Time.current : nil
     )
+  end
+
+  def update_run_sheet!
+    increment!(:run_sheet_version)
+    update!(last_run_sheet_update: Time.current)
+  end
+
+  def driver
+    vehicle&.driver
+  end
+
+  def run_sheet_changed_since?(timestamp)
+    return false unless last_run_sheet_update
+    last_run_sheet_update > timestamp
   end
 
   def cancel!(reason: nil)
@@ -63,7 +85,7 @@ class Order < ApplicationRecord
   end
 
   def paid?
-    payment&.completed?
+    self[:paid] || payment&.completed?
   end
 
   def tracking_url
@@ -76,6 +98,11 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def contact_info_required?
+    # Contact info required when status is confirmed or beyond and transitioning to in_transit
+    confirmed? || in_transit? || out_for_delivery? || delivered?
+  end
 
   def generate_order_number
     self.order_number = "BDE-#{Date.current.strftime('%Y%m%d')}-#{SecureRandom.hex(3).upcase}"

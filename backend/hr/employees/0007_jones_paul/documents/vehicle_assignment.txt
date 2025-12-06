@@ -1,0 +1,40 @@
+================================================================================
+VEHICLE ASSIGNMENT RECORD
+================================================================================
+
+DRIVER DETAILS
+--------------------------------------------------------------------------------
+Name:               Paul Jones
+Employee ID:        EMP0007
+License Number:     JONES707664P88AA
+
+ASSIGNED VEHICLE
+--------------------------------------------------------------------------------
+Vehicle Name:       Volvo FH 26t
+Registration:       GH24 GHI
+Vehicle Type:       Twenty six tonne
+Max Weight:         15000.0 kg
+Max Volume:         60.0 cbm
+
+ASSIGNMENT DETAILS
+--------------------------------------------------------------------------------
+Assignment Date:    06 September 2025
+Assignment Type:    Primary Vehicle
+Status:             Active
+
+DRIVER RESPONSIBILITIES
+--------------------------------------------------------------------------------
+- Complete daily vehicle checks before each journey
+- Report any defects immediately to Fleet Manager
+- Maintain cleanliness of cab and load area
+- Secure vehicle when unattended
+- Adhere to all traffic laws and EU driving regulations
+- Maintain accurate tachograph records
+
+FUEL CARD ISSUED
+--------------------------------------------------------------------------------
+Card Number:        ****-****-****-1870
+Card Type:          Diesel Only
+Monthly Limit:      As per route requirements
+
+================================================================================

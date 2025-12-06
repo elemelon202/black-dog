@@ -1,0 +1,40 @@
+================================================================================
+VEHICLE ASSIGNMENT RECORD
+================================================================================
+
+DRIVER DETAILS
+--------------------------------------------------------------------------------
+Name:               Robert Anderson
+Employee ID:        EMP0010
+License Number:     ANDER952533R98AA
+
+ASSIGNED VEHICLE
+--------------------------------------------------------------------------------
+Vehicle Name:       DAF XF Refrigerated
+Registration:       NP27 PQR
+Vehicle Type:       Refrigerated
+Max Weight:         24000.0 kg
+Max Volume:         75.0 cbm
+
+ASSIGNMENT DETAILS
+--------------------------------------------------------------------------------
+Assignment Date:    06 August 2024
+Assignment Type:    Primary Vehicle
+Status:             Active
+
+DRIVER RESPONSIBILITIES
+--------------------------------------------------------------------------------
+- Complete daily vehicle checks before each journey
+- Report any defects immediately to Fleet Manager
+- Maintain cleanliness of cab and load area
+- Secure vehicle when unattended
+- Adhere to all traffic laws and EU driving regulations
+- Maintain accurate tachograph records
+
+FUEL CARD ISSUED
+--------------------------------------------------------------------------------
+Card Number:        ****-****-****-9950
+Card Type:          Diesel Only
+Monthly Limit:      As per route requirements
+
+================================================================================

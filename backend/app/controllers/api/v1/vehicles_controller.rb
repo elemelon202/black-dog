@@ -3,7 +3,7 @@ module Api
     class VehiclesController < BaseController
       skip_before_action :authenticate_user!, only: [:index, :vehicle_types]
       before_action :authorize_staff!, except: [:index, :vehicle_types]
-      before_action :set_vehicle, only: [:show, :update, :destroy, :toggle_availability]
+      before_action :set_vehicle, only: [:show, :update, :destroy, :toggle_availability, :assign_driver]
 
       def index
         @vehicles = Vehicle.all
@@ -48,6 +48,25 @@ module Api
           message: "Vehicle availability updated",
           data: VehicleSerializer.new(@vehicle).serializable_hash[:data]
         }
+      end
+
+      def assign_driver
+        driver = User.find(params[:driver_id])
+
+        unless driver.driver?
+          return render json: { error: "User is not a driver" }, status: :unprocessable_entity
+        end
+
+        @vehicle.update!(driver: driver)
+
+        render json: {
+          message: "Driver assigned to vehicle successfully",
+          data: VehicleSerializer.new(@vehicle, include: [:driver]).serializable_hash[:data]
+        }
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Driver not found" }, status: :not_found
+      rescue StandardError => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
 
       def vehicle_types

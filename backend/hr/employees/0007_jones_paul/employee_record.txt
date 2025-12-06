@@ -1,0 +1,39 @@
+================================================================================
+EMPLOYEE RECORD
+================================================================================
+
+PERSONAL INFORMATION
+--------------------------------------------------------------------------------
+Employee ID:        EMP0007
+Full Name:          Paul Jones
+Email:              driver4@blackdogexpress.co.uk
+Phone:              +44 7700 900103
+
+EMPLOYMENT DETAILS
+--------------------------------------------------------------------------------
+Job Title:          HGV Driver (Class 1)
+Department:         Transport
+Employment Type:    Full-time, Permanent
+Start Date:         06 September 2025
+Reports To:         Transport Dispatcher / Fleet Manager
+Work Location:      Black Dog Express Depot, London
+
+PAYROLL INFORMATION
+--------------------------------------------------------------------------------
+NI Number:          RS155433D
+Tax Code:           1257L
+Pay Frequency:      Monthly
+Payment Method:     BACS Transfer
+Bank Details:       On file with payroll
+
+RIGHT TO WORK
+--------------------------------------------------------------------------------
+Status:             Verified
+Document Type:      Settled Status Share Code
+Verified Date:      30 August 2025
+Verified By:        HR Department
+
+--------------------------------------------------------------------------------
+Record Created:     06 September 2025
+Last Updated:       06 December 2025
+================================================================================

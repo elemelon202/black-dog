@@ -19,6 +19,16 @@ interface QuoteFormData {
   delivery_postcode: string;
   pickup_country: string;
   delivery_country: string;
+  pickup_address_line1?: string;
+  pickup_address_line2?: string;
+  pickup_city?: string;
+  pickup_state?: string;
+  pickup_company_name?: string;
+  delivery_address_line1?: string;
+  delivery_address_line2?: string;
+  delivery_city?: string;
+  delivery_state?: string;
+  delivery_company_name?: string;
   cargo_weight_kg: number;
   cargo_volume_cbm?: number;
   cargo_description: string;
@@ -27,22 +37,47 @@ interface QuoteFormData {
   requires_pallet_jack: boolean;
   is_hazardous: boolean;
   is_temperature_controlled: boolean;
+  multi_drop_ok: boolean;
   notes?: string;
 }
 
 const countries = [
+  // UK & Ireland
   { code: 'GB', name: 'United Kingdom' },
+  { code: 'IE', name: 'Ireland' },
+  // Western Europe
   { code: 'FR', name: 'France' },
   { code: 'DE', name: 'Germany' },
   { code: 'NL', name: 'Netherlands' },
   { code: 'BE', name: 'Belgium' },
-  { code: 'ES', name: 'Spain' },
-  { code: 'IT', name: 'Italy' },
-  { code: 'PL', name: 'Poland' },
+  { code: 'LU', name: 'Luxembourg' },
   { code: 'AT', name: 'Austria' },
+  { code: 'CH', name: 'Switzerland' },
+  // Southern Europe
+  { code: 'ES', name: 'Spain' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'GR', name: 'Greece' },
+  { code: 'MT', name: 'Malta' },
+  { code: 'CY', name: 'Cyprus' },
+  // Northern Europe
   { code: 'DK', name: 'Denmark' },
   { code: 'SE', name: 'Sweden' },
-  { code: 'IE', name: 'Ireland' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'FI', name: 'Finland' },
+  // Central & Eastern Europe
+  { code: 'PL', name: 'Poland' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'SK', name: 'Slovakia' },
+  { code: 'HU', name: 'Hungary' },
+  { code: 'RO', name: 'Romania' },
+  { code: 'BG', name: 'Bulgaria' },
+  { code: 'SI', name: 'Slovenia' },
+  { code: 'HR', name: 'Croatia' },
+  // Baltic States
+  { code: 'EE', name: 'Estonia' },
+  { code: 'LV', name: 'Latvia' },
+  { code: 'LT', name: 'Lithuania' },
 ];
 
 export default function Quote() {
@@ -63,6 +98,7 @@ export default function Quote() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<QuoteFormData>({
     defaultValues: {
@@ -70,6 +106,16 @@ export default function Quote() {
       delivery_postcode: '',
       pickup_country: 'GB',
       delivery_country: 'GB',
+      pickup_address_line1: '',
+      pickup_address_line2: '',
+      pickup_city: '',
+      pickup_state: '',
+      pickup_company_name: '',
+      delivery_address_line1: '',
+      delivery_address_line2: '',
+      delivery_city: '',
+      delivery_state: '',
+      delivery_company_name: '',
       cargo_weight_kg: 0,
       cargo_volume_cbm: 0,
       cargo_description: '',
@@ -78,6 +124,7 @@ export default function Quote() {
       requires_pallet_jack: false,
       is_hazardous: false,
       is_temperature_controlled: false,
+      multi_drop_ok: false,
       notes: '',
     },
   });
@@ -121,8 +168,11 @@ export default function Quote() {
     }
   };
 
+  const pickupCountry = watch('pickup_country');
   const deliveryCountry = watch('delivery_country');
-  const isInternational = deliveryCountry !== 'GB';
+  const isInternational = pickupCountry !== 'GB' || deliveryCountry !== 'GB';
+  const isPickupInternational = pickupCountry !== 'GB';
+  const isDeliveryInternational = deliveryCountry !== 'GB';
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -173,57 +223,147 @@ export default function Quote() {
                 </h2>
 
                 {/* Collection */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="label">Collection Postcode</label>
-                    <input
-                      {...register('pickup_postcode')}
-                      placeholder="e.g., SW1A 1AA"
-                      className="input"
-                    />
-                    {errors.pickup_postcode && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.pickup_postcode.message}
-                      </p>
-                    )}
+                <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                  <h4 className="font-medium text-green-800 mb-3">Collection Address</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">Country</label>
+                      <select {...register('pickup_country')} className="input">
+                        {countries.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Postcode / ZIP</label>
+                      <input
+                        {...register('pickup_postcode')}
+                        placeholder={isPickupInternational ? "e.g., 75001" : "e.g., SW1A 1AA"}
+                        className="input"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="label">Collection Country</label>
-                    <select {...register('pickup_country')} className="input">
-                      {countries.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
+                  {isPickupInternational && (
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <label className="label">Company Name (Optional)</label>
+                        <input
+                          {...register('pickup_company_name')}
+                          placeholder="Company name"
+                          className="input"
+                        />
+                      </div>
+                      <div>
+                        <label className="label">Address Line 1</label>
+                        <input
+                          {...register('pickup_address_line1')}
+                          placeholder="Street address"
+                          className="input"
+                        />
+                      </div>
+                      <div>
+                        <label className="label">Address Line 2 (Optional)</label>
+                        <input
+                          {...register('pickup_address_line2')}
+                          placeholder="Apt, suite, unit, etc."
+                          className="input"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="label">City</label>
+                          <input
+                            {...register('pickup_city')}
+                            placeholder="City"
+                            className="input"
+                          />
+                        </div>
+                        <div>
+                          <label className="label">State / Province</label>
+                          <input
+                            {...register('pickup_state')}
+                            placeholder="State or province"
+                            className="input"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Delivery */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="label">Delivery Postcode</label>
-                    <input
-                      {...register('delivery_postcode')}
-                      placeholder="e.g., M1 1AA"
-                      className="input"
-                    />
-                    {errors.delivery_postcode && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.delivery_postcode.message}
-                      </p>
-                    )}
+                <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                  <h4 className="font-medium text-red-800 mb-3">Delivery Address</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">Country</label>
+                      <select {...register('delivery_country')} className="input">
+                        {countries.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Postcode / ZIP</label>
+                      <input
+                        {...register('delivery_postcode')}
+                        placeholder={isDeliveryInternational ? "e.g., 75001" : "e.g., M1 1AA"}
+                        className="input"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="label">Delivery Country</label>
-                    <select {...register('delivery_country')} className="input">
-                      {countries.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
+                  {isDeliveryInternational && (
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <label className="label">Company Name (Optional)</label>
+                        <input
+                          {...register('delivery_company_name')}
+                          placeholder="Company name"
+                          className="input"
+                        />
+                      </div>
+                      <div>
+                        <label className="label">Address Line 1</label>
+                        <input
+                          {...register('delivery_address_line1')}
+                          placeholder="Street address"
+                          className="input"
+                        />
+                      </div>
+                      <div>
+                        <label className="label">Address Line 2 (Optional)</label>
+                        <input
+                          {...register('delivery_address_line2')}
+                          placeholder="Apt, suite, unit, etc."
+                          className="input"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="label">City</label>
+                          <input
+                            {...register('delivery_city')}
+                            placeholder="City"
+                            className="input"
+                          />
+                        </div>
+                        <div>
+                          <label className="label">State / Province</label>
+                          <input
+                            {...register('delivery_state')}
+                            placeholder="State or province"
+                            className="input"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {isInternational && (
@@ -341,6 +481,54 @@ export default function Quote() {
                       />
                       <span>Temperature Controlled</span>
                     </label>
+                  </div>
+                </div>
+
+                {/* Delivery Type */}
+                <div className="pt-4 border-t">
+                  <h3 className="text-lg font-semibold text-brand-900 mb-4">
+                    Delivery Type
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setValue('multi_drop_ok', false)}
+                      className={`flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        !watch('multi_drop_ok') ? 'border-brand-900 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          !watch('multi_drop_ok') ? 'border-brand-900' : 'border-gray-300'
+                        }`}>
+                          {!watch('multi_drop_ok') && <div className="w-2 h-2 rounded-full bg-brand-900" />}
+                        </div>
+                        <span className="font-medium">Direct Delivery</span>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2 ml-7">
+                        Dedicated vehicle for your goods only. Fastest option.
+                      </p>
+                    </div>
+                    <div
+                      onClick={() => setValue('multi_drop_ok', true)}
+                      className={`flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        watch('multi_drop_ok') ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          watch('multi_drop_ok') ? 'border-green-600' : 'border-gray-300'
+                        }`}>
+                          {watch('multi_drop_ok') && <div className="w-2 h-2 rounded-full bg-green-600" />}
+                        </div>
+                        <span className="font-medium">Shared Vehicle</span>
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">
+                          Save 25%
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2 ml-7">
+                        Share with other shipments going the same way. Best value.
+                      </p>
+                    </div>
                   </div>
                 </div>
 

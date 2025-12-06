@@ -1,0 +1,34 @@
+================================================================================
+DRIVER CPC (Certificate of Professional Competence) RECORD
+================================================================================
+
+EMPLOYEE DETAILS
+--------------------------------------------------------------------------------
+Name:               Steve Williams
+Employee ID:        EMP0005
+Driver Card Number: UK251243796675
+
+CPC QUALIFICATION
+--------------------------------------------------------------------------------
+CPC Status:         QUALIFIED
+Initial CPC Date:   06 December 2021
+Current Expiry:     06 December 2026
+
+PERIODIC TRAINING RECORD (35 hours required per 5-year cycle)
+--------------------------------------------------------------------------------
+Training Module                           Date          Hours    Provider
+--------------------------------------------------------------------------------
+Safe & Fuel-Efficient Driving             06/04/2025      7.0      RTITB
+Health & Safety for Drivers               06/06/2025      7.0      RTITB
+Customer Service Excellence               06/08/2025      7.0      In-house
+Security & Border Procedures              06/10/2025      7.0      RTITB
+Digital Tachograph & Working Time         06/11/2025       7.0      DVSA
+--------------------------------------------------------------------------------
+TOTAL HOURS COMPLETED:                                  35.0 hours
+
+NEXT RENEWAL DUE
+--------------------------------------------------------------------------------
+CPC Card Renewal:   06 December 2026
+Training Cycle:     35 hours to be completed by 06 December 2026
+
+================================================================================

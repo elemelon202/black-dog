@@ -5,13 +5,15 @@ import {
   Package,
   FileText,
   MapPin,
-  User,
   LogOut,
   Menu,
   X,
   Home,
   Calculator,
-  Globe
+  Globe,
+  Users,
+  DollarSign,
+  FolderOpen
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -25,6 +27,7 @@ export default function Layout() {
     { name: 'Get Quote', href: '/quote', icon: Calculator },
     { name: 'Track Shipment', href: '/track', icon: MapPin },
     { name: 'Services', href: '/services', icon: Globe },
+    { name: 'Vehicles', href: '/vehicles', icon: Truck },
   ];
 
   const authenticatedNavigation = [
@@ -34,7 +37,18 @@ export default function Layout() {
     { name: 'New Quote', href: '/quote', icon: Calculator },
   ];
 
-  const navItems = isAuthenticated ? authenticatedNavigation : navigation;
+  const adminNavigation = [
+    { name: 'Dashboard', href: '/admin', icon: Home },
+    { name: 'Orders', href: '/admin/orders', icon: Package },
+    { name: 'Drivers', href: '/admin/drivers', icon: Truck },
+    { name: 'Customers', href: '/admin/customers', icon: Users },
+    { name: 'Finances', href: '/admin/finances', icon: DollarSign },
+    { name: 'HR', href: '/admin/hr', icon: FolderOpen },
+    { name: 'New Quote', href: '/quote', icon: Calculator },
+  ];
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'dispatcher';
+  const navItems = isAuthenticated ? (isAdmin ? adminNavigation : authenticatedNavigation) : navigation;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,13 +88,6 @@ export default function Layout() {
             <div className="hidden md:flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link
-                    to="/profile"
-                    className="flex items-center space-x-2 text-gray-300 hover:text-white"
-                  >
-                    <User className="h-5 w-5" />
-                    <span className="text-sm">{user?.first_name}</span>
-                  </Link>
                   <button
                     onClick={logout}
                     className="flex items-center space-x-1 text-gray-300 hover:text-white"
@@ -205,8 +212,8 @@ export default function Layout() {
             <div>
               <h3 className="font-semibold mb-4">Information</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/shipping-info" className="hover:text-white">UK Shipping</Link></li>
-                <li><Link to="/shipping-info" className="hover:text-white">EU Shipping</Link></li>
+                <li><Link to="/uk-shipping" className="hover:text-white">UK Shipping</Link></li>
+                <li><Link to="/eu-shipping" className="hover:text-white">EU Shipping</Link></li>
                 <li><Link to="/vehicles" className="hover:text-white">Vehicle Guide</Link></li>
                 <li><Link to="/track" className="hover:text-white">Track Shipment</Link></li>
               </ul>

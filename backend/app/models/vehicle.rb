@@ -12,6 +12,8 @@ class Vehicle < ApplicationRecord
     refrigerated: 9       # Temperature controlled
   }
 
+  belongs_to :driver, class_name: 'User', optional: true
+
   has_many :orders
   has_many :routes
 

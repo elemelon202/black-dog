@@ -2,7 +2,8 @@ module Api
   module V1
     module Admin
       class UsersController < BaseController
-        before_action :authorize_admin!
+        before_action :authorize_staff!
+        before_action :authorize_admin!, only: [:create, :destroy]
         before_action :set_user, only: [:show, :update, :destroy]
 
         def index

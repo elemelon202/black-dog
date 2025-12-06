@@ -1,0 +1,40 @@
+================================================================================
+VEHICLE ASSIGNMENT RECORD
+================================================================================
+
+DRIVER DETAILS
+--------------------------------------------------------------------------------
+Name:               Thomas Young
+Employee ID:        EMP0015
+License Number:     YOUNG400976T87AA
+
+ASSIGNED VEHICLE
+--------------------------------------------------------------------------------
+Vehicle Name:       DAF XG+ 530 Artic #5
+Registration:       BD25 DAG
+Vehicle Type:       Artic trailer
+Max Weight:         26000.0 kg
+Max Volume:         90.0 cbm
+
+ASSIGNMENT DETAILS
+--------------------------------------------------------------------------------
+Assignment Date:    06 September 2025
+Assignment Type:    Primary Vehicle
+Status:             Active
+
+DRIVER RESPONSIBILITIES
+--------------------------------------------------------------------------------
+- Complete daily vehicle checks before each journey
+- Report any defects immediately to Fleet Manager
+- Maintain cleanliness of cab and load area
+- Secure vehicle when unattended
+- Adhere to all traffic laws and EU driving regulations
+- Maintain accurate tachograph records
+
+FUEL CARD ISSUED
+--------------------------------------------------------------------------------
+Card Number:        ****-****-****-7958
+Card Type:          Diesel Only
+Monthly Limit:      As per route requirements
+
+================================================================================

@@ -1,0 +1,43 @@
+================================================================================
+DRIVER LICENSE VERIFICATION RECORD
+================================================================================
+
+EMPLOYEE DETAILS
+--------------------------------------------------------------------------------
+Name:               Paul Jones
+Employee ID:        EMP0007
+Position:           HGV Driver (Class 1)
+
+DRIVING LICENSE DETAILS
+--------------------------------------------------------------------------------
+License Number:     JONES451319P30AA
+Issue Country:      United Kingdom
+
+LICENSE CATEGORIES HELD
+--------------------------------------------------------------------------------
+Category B:         Car                           Valid
+Category C:         Rigid vehicles over 3.5t      Valid
+Category C+E:       Articulated vehicles          Valid
+
+ENDORSEMENTS
+--------------------------------------------------------------------------------
+None on record
+
+VERIFICATION HISTORY
+--------------------------------------------------------------------------------
+Date                Checked By          Result
+--------------------------------------------------------------------------------
+01/09/2025         HR Department       PASSED
+06/09/2025         Fleet Manager       PASSED
+
+NEXT CHECK DUE
+--------------------------------------------------------------------------------
+Date:               06 March 2026
+
+NOTES
+--------------------------------------------------------------------------------
+Driver has held HGV license for 12 years.
+No accidents or incidents on record.
+Annual eyesight test: PASSED
+
+================================================================================

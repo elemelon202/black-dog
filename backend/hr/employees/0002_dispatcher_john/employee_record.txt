@@ -1,0 +1,39 @@
+================================================================================
+EMPLOYEE RECORD
+================================================================================
+
+PERSONAL INFORMATION
+--------------------------------------------------------------------------------
+Employee ID:        EMP0002
+Full Name:          John Dispatcher
+Email:              dispatcher@blackdogexpress.co.uk
+Phone:              +44 7700 900001
+
+EMPLOYMENT DETAILS
+--------------------------------------------------------------------------------
+Job Title:          Transport Dispatcher
+Department:         Operations
+Employment Type:    Full-time, Permanent
+Start Date:         06 December 2023
+Reports To:         Operations Manager
+Work Location:      Black Dog Express Depot, London
+
+PAYROLL INFORMATION
+--------------------------------------------------------------------------------
+NI Number:          EF115838C
+Tax Code:           1257L
+Pay Frequency:      Monthly
+Payment Method:     BACS Transfer
+Bank Details:       On file with payroll
+
+RIGHT TO WORK
+--------------------------------------------------------------------------------
+Status:             Verified
+Document Type:      UK Birth Certificate + NI Card
+Verified Date:      29 November 2023
+Verified By:        HR Department
+
+--------------------------------------------------------------------------------
+Record Created:     06 December 2023
+Last Updated:       06 December 2025
+================================================================================

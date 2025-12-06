@@ -336,9 +336,9 @@ export default function OrderDetail() {
                 <p className="text-sm text-orange-700 mb-4">
                   Please complete payment to confirm your order.
                 </p>
-                <button className="btn btn-accent w-full">
+                <Link to={`/orders/${id}/pay`} className="btn btn-accent w-full text-center">
                   Pay Now
-                </button>
+                </Link>
               </>
             )}
           </div>
