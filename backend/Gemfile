@@ -1,0 +1,57 @@
+source "https://rubygems.org"
+
+ruby "3.3.5"
+
+gem "rails", "~> 7.1.6"
+gem "pg", "~> 1.1"
+gem "puma", ">= 5.0"
+gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "bootsnap", require: false
+
+# API & Serialization
+gem "jsonapi-serializer"
+gem "rack-cors"
+
+# Authentication
+gem "devise"
+gem "devise-jwt"
+
+# Payments
+gem "stripe"
+
+# Background Jobs
+gem "sidekiq"
+gem "redis"
+
+# Geocoding & Distance Calculation
+gem "geocoder"
+
+# PDF Generation (for invoices/quotes)
+gem "prawn"
+gem "prawn-table"
+
+# Email
+gem "sendgrid-ruby"
+
+# Environment Variables
+gem "dotenv-rails"
+
+# Pagination
+gem "kaminari"
+
+group :development, :test do
+  gem "debug", platforms: %i[ mri windows ]
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
+end
+
+group :development do
+  gem "annotate"
+end
+
+group :test do
+  gem "shoulda-matchers"
+  gem "database_cleaner-active_record"
+end
+
